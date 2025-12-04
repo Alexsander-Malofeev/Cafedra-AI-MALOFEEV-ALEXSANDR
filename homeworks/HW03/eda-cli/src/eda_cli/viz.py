@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import os
+import pandas as pd
 
 def save_histograms(df: pd.DataFrame, out_dir: str, max_cols: int = 4):
     os.makedirs(out_dir, exist_ok=True)

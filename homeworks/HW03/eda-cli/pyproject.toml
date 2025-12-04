@@ -2,6 +2,7 @@
 name = "eda-cli"
 version = "0.1.0"
 description = "Мини EDA утилита — HW03"
+requires-python = ">=3.8"
 dependencies = [
     "pandas",
     "matplotlib",
