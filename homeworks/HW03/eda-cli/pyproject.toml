@@ -1,0 +1,22 @@
+[project]
+name = "eda-cli"
+version = "0.1.0"
+description = "Мини EDA утилита — HW03"
+dependencies = [
+    "pandas",
+    "matplotlib",
+    "tyro",
+    "jinja2",
+]
+
+[project.scripts]
+eda-cli = "eda_cli.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+]
