@@ -3,11 +3,28 @@
 Мини-приложение для быстрого EDA.
 
 ## Команды
+
+```bash
+# Общий обзор
 uv run eda-cli overview data/example.csv
 
-uv run eda-cli report data/example.csv --out-dir reports --title "Мой анализ данных" --max-hist-columns 5
+# Базовый отчёт
+uv run eda-cli report data/example.csv --out-dir reports
 
-## Что нового (для HW03)
-- Две новые эвристики качества: константные колонки и вроде высокая кардинальность
-- Новые параметры CLI: `--title`, `--max-hist-columns`
-- Тесты на новые эвристикиcd homeworks/HW03/eda-cli
+Создать полный отчёт с графиками:
+
+uv run eda-cli report data/example.csv --out-dir reports
+
+Настроить отчёт под свои нужды:
+
+uv run eda-cli report data/example.csv \
+  --out-dir мой_отчёт \
+  --max-hist-columns 3 \
+  --min-missing-share 0.2
+
+  Теперь по новизне -  новая версия (HW03) now умеет:
+Автоматически находит проблемы в данных:
+Константные колонки — столбцы, где все значения одинаковые
+и имеет Высокую кардинальность — категории со слишком большим числом уникальных значений
+
+Тестами я их проверил, долго сомнивался стоит ли удалаять папки, что создали мне тесты - в итоге удалил, чтобы вам не портили глаза.
