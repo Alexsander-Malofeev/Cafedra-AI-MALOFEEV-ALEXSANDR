@@ -1,11 +1,9 @@
 import sys
 import os
-from pathlib import Path
-from .core import load_data, compute_quality_flags, get_basic_stats
+from .core import load_data, compute_quality_flags
 from .viz import save_histograms
 
 def overview(path: str):
-    """Показать общую информацию о датасете."""
     df = load_data(path)
     flags = compute_quality_flags(df)
     print(f"Строк: {df.shape[0]}, Столбцов: {df.shape[1]}")
@@ -21,33 +19,20 @@ def overview(path: str):
     if flags['has_high_cardinality_categoricals']:
         print(f"  ✗ Высокая кардинальность: {flags['high_cardinality_columns']}")
 
-def generate_report(
-    path: str,
-    out_dir: str = "reports",
-    max_hist_columns: int = 4,
-    min_missing_share: float = 0.3,
-):
-    """Сгенерировать полный отчёт по анализу данных."""
+def generate_report(path: str, out_dir: str = "reports", max_hist_columns: int = 4, min_missing_share: float = 0.3):
     df = load_data(path)
-    stats = get_basic_stats(df)
-    
-    # Используем min_missing_share
     flags = compute_quality_flags(df, min_missing_share=min_missing_share)
     
-    # Создаем папку для отчета
     os.makedirs(out_dir, exist_ok=True)
-    
-    # Сохраняем гистограммы с параметром max_hist_columns
     save_histograms(df, out_dir, max_cols=max_hist_columns)
     
-    # Генерируем отчет
     report_path = os.path.join(out_dir, "report.md")
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("# Отчёт по анализу данных\n\n")
         
         f.write("## Основные характеристики\n")
-        f.write(f"- Строк: {stats['rows']}\n")
-        f.write(f"- Столбцов: {stats['cols']}\n")
+        f.write(f"- Строк: {df.shape[0]}\n")
+        f.write(f"- Столбцов: {df.shape[1]}\n")
         f.write(f"- Качество данных: {flags['quality_score']}/100\n")
         f.write(f"- Порог пропусков: {min_missing_share}\n")
         f.write(f"- Макс. гистограмм: {max_hist_columns}\n\n")
@@ -65,7 +50,6 @@ def generate_report(
     print(f"Отчёт создан: {report_path}")
 
 def main():
-    """Основная функция CLI."""
     if len(sys.argv) < 2:
         print("Использование:")
         print("  eda-cli overview <файл.csv>")
@@ -85,7 +69,6 @@ def main():
             print("Ошибка: укажите путь к файлу")
             sys.exit(1)
         
-        # Простой парсинг аргументов
         args = sys.argv[2:]
         input_csv = None
         out_dir = "reports"

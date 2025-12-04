@@ -11,6 +11,17 @@ def test_constant_columns():
     
     flags = compute_quality_flags(df)
     
-    # Проверяем, что флаг правильно определяет константный столбец
     assert flags["has_constant_columns"] == True
     assert "a" in flags["constant_columns_list"]
+
+def test_high_cardinality():
+    """Тест для обнаружения высокой кардинальности."""
+    df = pd.DataFrame({
+        "category": [f"cat_{i}" for i in range(25)],  # 25 уникальных значений > 20
+        "value": range(25)
+    })
+    
+    flags = compute_quality_flags(df)
+    
+    assert flags["has_high_cardinality_categoricals"] == True
+    assert "category" in flags["high_cardinality_columns"]
