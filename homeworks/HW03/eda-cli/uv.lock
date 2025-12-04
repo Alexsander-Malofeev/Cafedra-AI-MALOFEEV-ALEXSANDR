@@ -338,6 +338,13 @@ dependencies = [
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
 ]
 
+[package.optional-dependencies]
+dev = [
+    { name = "pytest", version = "8.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
+    { name = "pytest", version = "9.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "pytest", version = "8.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -349,10 +356,12 @@ dev = [
 requires-dist = [
     { name = "matplotlib" },
     { name = "pandas" },
+    { name = "pytest", marker = "extra == 'dev'" },
 ]
+provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest" }]
+dev = [{ name = "pytest", specifier = ">=8.3.5" }]
 
 [[package]]
 name = "exceptiongroup"

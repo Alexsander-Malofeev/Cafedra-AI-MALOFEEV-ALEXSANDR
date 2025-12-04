@@ -15,6 +15,11 @@ eda-cli = "eda_cli.cli:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]
+
 [project.optional-dependencies]
 dev = [
     "pytest",
