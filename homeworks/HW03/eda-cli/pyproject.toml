@@ -5,8 +5,6 @@ description = "Мини EDA утилита — HW03"
 dependencies = [
     "pandas",
     "matplotlib",
-    "tyro",
-    "jinja2",
 ]
 
 [project.scripts]
