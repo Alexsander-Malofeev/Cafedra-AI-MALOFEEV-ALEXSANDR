@@ -1,0 +1,7 @@
+id,name,age,city,salary,country,constant_col
+1,Alice,25,Moscow,70000,Russia,999
+2,Bob,30,SPb,80000,Russia,999
+3,Alice,25,Moscow,70000,Russia,999
+4,Charlie,35,Kazan,,Russia,999
+5,David,40,Novosib,90000,Russia,999
+6,Eve,28,Ekb,65000,Russia,999
