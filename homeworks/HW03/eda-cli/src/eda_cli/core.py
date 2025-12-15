@@ -31,9 +31,19 @@ def compute_quality_flags(df, min_missing_share: float = 0.3):
     if flags["has_constant_columns"]: score -= 25
     if flags["has_high_cardinality_categoricals"]: score -= 25
     
+    # Дополнительный штраф если много пропусков (используем min_missing_share)
     if flags["missing_percentage"] > min_missing_share * 100:
         score -= 10
     
     flags["quality_score"] = max(0, score)
 
     return flags
+
+def get_basic_stats(df):
+    """Базовая статистика для отчёта"""
+    return {
+        "n_rows": df.shape[0],
+        "n_cols": df.shape[1],
+        "dtypes": df.dtypes.astype(str).to_dict(),
+        "columns": list(df.columns),
+    }
