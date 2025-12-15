@@ -1,20 +1,17 @@
 import sys
 import os
-from .core import load_data, compute_quality_flags, get_basic_stats
+from .core import load_data, compute_quality_flags
 from .viz import save_histograms
 
 def overview(path: str):
     df = load_data(path)
     flags = compute_quality_flags(df)
-    stats = get_basic_stats(df)
-    
-    print(f"Файл: {path}")
     print(f"Строк: {df.shape[0]}, Столбцов: {df.shape[1]}")
     print(f"Качество данных: {flags['quality_score']}/100")
     
-    print("\nПроблемы:")
+    print("Проблемы:")
     if flags['has_missing_values']:
-        print(f"  ✗ Есть пропуски ({flags['missing_percentage']:.1f}%)")
+        print("  ✗ Есть пропуски")
     if flags['has_duplicates']:
         print("  ✗ Есть дубликаты строк")
     if flags['has_constant_columns']:
@@ -25,49 +22,30 @@ def overview(path: str):
 def generate_report(
     path: str, 
     out_dir: str = "reports", 
+    # НОВАЯ CLI-ОПЦИЯ 1 для HW03
     max_hist_columns: int = 4,
-    min_missing_share: float = 0.3,
-    title: str = "Отчёт по анализу данных",
-    top_k_categories: int = 10
+    # НОВАЯ CLI-ОПЦИЯ 2 для HW03
+    min_missing_share: float = 0.3
 ):
-    """Сгенерировать отчёт с новыми параметрами"""
     df = load_data(path)
+    # Используем min_missing_share
     flags = compute_quality_flags(df, min_missing_share=min_missing_share)
-    stats = get_basic_stats(df)
     
     os.makedirs(out_dir, exist_ok=True)
+    # Используем max_hist_columns
     save_histograms(df, out_dir, max_cols=max_hist_columns)
-    
-    # Собираем информацию о категориальных колонках (топ-K)
-    categorical_info = {}
-    for col in df.select_dtypes(include=["object"]).columns:
-        top_values = df[col].value_counts().head(top_k_categories)
-        if not top_values.empty:
-            categorical_info[col] = top_values.to_dict()
-    
-    # Проблемные колонки по пропускам
-    problem_columns = []
-    for col in df.columns:
-        missing_ratio = df[col].isna().sum() / len(df)
-        if missing_ratio > min_missing_share:
-            problem_columns.append((col, missing_ratio))
     
     report_path = os.path.join(out_dir, "report.md")
     with open(report_path, "w", encoding="utf-8") as f:
-        # Используем title из параметров
-        f.write(f"# {title}\n\n")
+        f.write("# Отчёт по анализу данных\n\n")
         
         f.write("## Основные характеристики\n")
-        f.write(f"- Файл: {path}\n")
         f.write(f"- Строк: {df.shape[0]}\n")
         f.write(f"- Столбцов: {df.shape[1]}\n")
-        f.write(f"- Качество данных: {flags['quality_score']}/100\n\n")
-        
-        f.write("## Настройки отчёта\n")
+        f.write(f"- Качество данных: {flags['quality_score']}/100\n")
+        # Упоминаем новые параметры
         f.write(f"- Макс. гистограмм: {max_hist_columns}\n")
-        f.write(f"- Порог пропусков: {min_missing_share}\n")
-        f.write(f"- Топ-K категорий: {top_k_categories}\n")
-        f.write(f"- Заголовок: {title}\n\n")
+        f.write(f"- Порог пропусков: {min_missing_share}\n\n")
         
         f.write("## Обнаруженные проблемы\n")
         if flags['has_missing_values']:
@@ -78,34 +56,14 @@ def generate_report(
             f.write(f"- Константные колонки: {flags['constant_columns_list']}\n")
         if flags['has_high_cardinality_categoricals']:
             f.write(f"- Высокая кардинальность: {flags['high_cardinality_columns']}\n")
-        
-        if problem_columns:
-            f.write(f"\n## Колонки с пропусками > {min_missing_share}\n")
-            for col, ratio in problem_columns:
-                f.write(f"- {col}: {ratio:.1%}\n")
-        
-        if categorical_info:
-            f.write(f"\n## Топ-{top_k_categories} категорий\n")
-            for col, values in categorical_info.items():
-                f.write(f"### {col}\n")
-                for value, count in values.items():
-                    f.write(f"- '{value}': {count}\n")
     
-    print(f"✓ Отчёт создан: {report_path}")
-    print(f"✓ Использованы параметры: max-hist-columns={max_hist_columns}, "
-          f"min-missing-share={min_missing_share}, title='{title}', top-k-categories={top_k_categories}")
+    print(f"Отчёт создан: {report_path}")
 
 def main():
     if len(sys.argv) < 2:
         print("Использование:")
         print("  eda-cli overview <файл.csv>")
-        print("  eda-cli report <файл.csv> [опции]")
-        print("\nОпции для report:")
-        print("  --out-dir <папка>           Папка для отчёта (по умолчанию: reports)")
-        print("  --max-hist-columns <N>      Макс. число гистограмм (по умолчанию: 4)")
-        print("  --min-missing-share <N>     Порог пропусков (по умолчанию: 0.3)")
-        print("  --title <текст>             Заголовок отчёта (по умолчанию: Отчёт по анализу данных)")
-        print("  --top-k-categories <N>      Топ-K категорий (по умолчанию: 10)")
+        print("  eda-cli report <файл.csv> [--out-dir reports] [--max-hist-columns 4] [--min-missing-share 0.3]")
         sys.exit(1)
     
     command = sys.argv[1]
@@ -113,47 +71,39 @@ def main():
     if command == "overview":
         if len(sys.argv) < 3:
             print("Ошибка: укажите путь к файлу")
-            print("Использование: eda-cli overview <файл.csv>")
             sys.exit(1)
         overview(sys.argv[2])
     
     elif command == "report":
         if len(sys.argv) < 3:
             print("Ошибка: укажите путь к файлу")
-            print("Использование: eda-cli report <файл.csv> [опции]")
             sys.exit(1)
         
         args = sys.argv[2:]
         input_csv = None
         out_dir = "reports"
+        # НОВЫЕ ПАРАМЕТРЫ
         max_hist_columns = 4
         min_missing_share = 0.3
-        title = "Отчёт по анализу данных"
-        top_k_categories = 10
         
         i = 0
         while i < len(args):
             if args[i] == "--out-dir" and i + 1 < len(args):
                 out_dir = args[i + 1]
                 i += 2
+            # НОВАЯ ОПЦИЯ 1
             elif args[i] == "--max-hist-columns" and i + 1 < len(args):
                 max_hist_columns = int(args[i + 1])
                 i += 2
+            # НОВАЯ ОПЦИЯ 2
             elif args[i] == "--min-missing-share" and i + 1 < len(args):
                 min_missing_share = float(args[i + 1])
-                i += 2
-            elif args[i] == "--title" and i + 1 < len(args):
-                title = args[i + 1]
-                i += 2
-            elif args[i] == "--top-k-categories" and i + 1 < len(args):
-                top_k_categories = int(args[i + 1])
                 i += 2
             elif not args[i].startswith("--"):
                 input_csv = args[i]
                 i += 1
             else:
-                print(f"Неизвестная опция: {args[i]}")
-                sys.exit(1)
+                i += 1
         
         if not input_csv:
             print("Ошибка: укажите путь к CSV файлу")
@@ -164,8 +114,6 @@ def main():
             out_dir=out_dir,
             max_hist_columns=max_hist_columns,
             min_missing_share=min_missing_share,
-            title=title,
-            top_k_categories=top_k_categories
         )
     
     else:

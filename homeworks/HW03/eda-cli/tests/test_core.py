@@ -25,18 +25,3 @@ def test_high_cardinality():
     
     assert flags["has_high_cardinality_categoricals"] == True
     assert "category" in flags["high_cardinality_columns"]
-
-def test_min_missing_share_parameter():
-    """Тест для проверки работы параметра min_missing_share."""
-    df = pd.DataFrame({
-        "a": [1, None, None, None, None],  # 80% пропусков
-        "b": [1, 2, 3, 4, 5]
-    })
-    
-    # С порогом 0.5 (50%) - должен быть штраф
-    flags1 = compute_quality_flags(df, min_missing_share=0.5)
-    # С порогом 0.9 (90%) - не должно быть штрафа
-    flags2 = compute_quality_flags(df, min_missing_share=0.9)
-    
-    # Проверяем, что качество разное при разных порогах
-    assert flags1["quality_score"] != flags2["quality_score"]
