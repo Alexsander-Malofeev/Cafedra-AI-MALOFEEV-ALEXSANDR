@@ -1,153 +1,180 @@
-import sys
-import os
-from .core import load_data, compute_quality_flags
-from .viz import save_histograms
+from __future__ import annotations
 
-def overview(path: str):
-    df = load_data(path)
-    flags = compute_quality_flags(df)
-    print(f"Строк: {df.shape[0]}, Столбцов: {df.shape[1]}")
-    print(f"Качество данных: {flags['quality_score']}/100")
-    
-    print("Проблемы:")
-    if flags['has_missing_values']:
-        print("  ✗ Есть пропуски")
-    if flags['has_duplicates']:
-        print("  ✗ Есть дубликаты строк")
-    if flags['has_constant_columns']:
-        print(f"  ✗ Константные колонки: {flags['constant_columns_list']}")
-    if flags['has_high_cardinality_categoricals']:
-        print(f"  ✗ Высокая кардинальность: {flags['high_cardinality_columns']}")
+from pathlib import Path
+from typing import Optional
 
-def generate_report(
-    path: str, 
-    out_dir: str = "reports", 
-    # ============================================
-    # НОВАЯ CLI-ОПЦИЯ ДЛЯ HW03: ограничение гистограмм
-    # ============================================
-    max_hist_columns: int = 4,
-    # ============================================
-    # НОВАЯ CLI-ОПЦИЯ ДЛЯ HW03: порог пропусков
-    # ============================================
-    min_missing_share: float = 0.3
-):
-    df = load_data(path)
-    # ИСПОЛЬЗУЕМ НОВУЮ ОПЦИЮ min_missing_share
-    flags = compute_quality_flags(df, min_missing_share=min_missing_share)
-    
-    os.makedirs(out_dir, exist_ok=True)
-    # ИСПОЛЬЗУЕМ НОВУЮ ОПЦИЮ max_hist_columns
-    save_histograms(df, out_dir, max_cols=max_hist_columns)
-    
-    report_path = os.path.join(out_dir, "report.md")
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write("# Отчёт по анализу данных\n\n")
-        
-        f.write("## Основные характеристики\n")
-        f.write(f"- Строк: {df.shape[0]}\n")
-        f.write(f"- Столбцов: {df.shape[1]}\n")
-        f.write(f"- Качество данных: {flags['quality_score']}/100\n")
-        # ============================================
-        # УПОМИНАЕМ НОВЫЕ ОПЦИИ В ОТЧЁТЕ
-        # ============================================
-        f.write(f"- Макс. гистограмм: {max_hist_columns} (новая опция HW03)\n")
-        f.write(f"- Порог пропусков: {min_missing_share} (новая опция HW03)\n\n")
-        # ============================================
-        
-        f.write("## Обнаруженные проблемы\n")
-        if flags['has_missing_values']:
-            f.write(f"- Есть пропуски ({flags['missing_percentage']:.1f}%)\n")
-        if flags['has_duplicates']:
-            f.write("- Есть дубликаты строк\n")
-        if flags['has_constant_columns']:
-            f.write(f"- Константные колонки: {flags['constant_columns_list']}\n")
-        if flags['has_high_cardinality_categoricals']:
-            f.write(f"- Высокая кардинальность: {flags['high_cardinality_columns']}\n")
-    
-    print(f"Отчёт создан: {report_path}")
-    # ============================================
-    # ПОДТВЕРЖДАЕМ ИСПОЛЬЗОВАНИЕ НОВЫХ ОПЦИЙ
-    # ============================================
-    print(f"Использованы новые опции HW03: max-hist-columns={max_hist_columns}, min-missing-share={min_missing_share}")
+import pandas as pd
+import typer
 
-def main():
-    if len(sys.argv) < 2:
-        print("Использование:")
-        print("  eda-cli overview <файл.csv>")
-        print("  eda-cli report <файл.csv> [опции]")
-        print("\n" + "="*50)
-        print("НОВЫЕ ОПЦИИ ДЛЯ HW03 (добавлены в задании):")
-        print("="*50)
-        print("  --max-hist-columns <N>    Макс. число гистограмм (по умолчанию: 4)")
-        print("  --min-missing-share <X>   Порог пропусков для проблемных колонок (по умолчанию: 0.3)")
-        print("="*50)
-        print("\nСуществующие опции:")
-        print("  --out-dir <папка>         Папка для отчёта (по умолчанию: reports)")
-        sys.exit(1)
-    
-    command = sys.argv[1]
-    
-    if command == "overview":
-        if len(sys.argv) < 3:
-            print("Ошибка: укажите путь к файлу")
-            sys.exit(1)
-        overview(sys.argv[2])
-    
-    elif command == "report":
-        if len(sys.argv) < 3:
-            print("Ошибка: укажите путь к файлу")
-            sys.exit(1)
+from .core import (
+    DatasetSummary,
+    compute_quality_flags_simple,  # HW03: наша функция
+    correlation_matrix,
+    flatten_summary_for_print,
+    missing_table,
+    summarize_dataset,
+    top_categories,
+)
+from .viz import (
+    plot_correlation_heatmap,
+    plot_missing_matrix,
+    plot_histograms_per_column,
+    save_top_categories_tables,
+)
+
+app = typer.Typer(help="Мини-CLI для EDA CSV-файлов")
+
+
+def _load_csv(
+    path: Path,
+    sep: str = ",",
+    encoding: str = "utf-8",
+) -> pd.DataFrame:
+    if not path.exists():
+        raise typer.BadParameter(f"Файл '{path}' не найден")
+    try:
+        return pd.read_csv(path, sep=sep, encoding=encoding)
+    except Exception as exc:  # noqa: BLE001
+        raise typer.BadParameter(f"Не удалось прочитать CSV: {exc}") from exc
+
+
+@app.command()
+def overview(
+    path: str = typer.Argument(..., help="Путь к CSV-файлу."),
+    sep: str = typer.Option(",", help="Разделитель в CSV."),
+    encoding: str = typer.Option("utf-8", help="Кодировка файла."),
+) -> None:
+    """
+    Напечатать краткий обзор датасета.
+    """
+    df = _load_csv(Path(path), sep=sep, encoding=encoding)
+    summary: DatasetSummary = summarize_dataset(df)
+    summary_df = flatten_summary_for_print(summary)
+
+    typer.echo(f"Строк: {summary.n_rows}")
+    typer.echo(f"Столбцов: {summary.n_cols}")
+    typer.echo("\nКолонки:")
+    typer.echo(summary_df.to_string(index=False))
+
+
+@app.command()
+def report(
+    path: str = typer.Argument(..., help="Путь к CSV-файлу."),
+    out_dir: str = typer.Option("reports", help="Каталог для отчёта."),
+    sep: str = typer.Option(",", help="Разделитель в CSV."),
+    encoding: str = typer.Option("utf-8", help="Кодировка файла."),
+    # ============================================================================
+    # HW03: НОВЫЕ ПАРАМЕТРЫ CLI
+    # ============================================================================
+    max_hist_columns: int = typer.Option(
+        6, 
+        help="Максимум числовых колонок для гистограмм. [HW03_NEW]"
+    ),
+    min_missing_share: float = typer.Option(
+        0.3,
+        help="Порог доли пропусков для определения проблемных колонок. [HW03_NEW]"
+    ),
+    # ============================================================================
+) -> None:
+    """
+    Сгенерировать полный EDA-отчёт.
+    HW03: Добавлены параметры --max-hist-columns и --min-missing-share.
+    """
+    out_root = Path(out_dir)
+    out_root.mkdir(parents=True, exist_ok=True)
+
+    df = _load_csv(Path(path), sep=sep, encoding=encoding)
+
+    # 1. Обзор
+    summary = summarize_dataset(df)
+    summary_df = flatten_summary_for_print(summary)
+    missing_df = missing_table(df)
+    corr_df = correlation_matrix(df)
+    top_cats = top_categories(df)
+
+    # 2. Качество в целом - HW03: используем нашу функцию с параметром min_missing_share
+    quality_flags = compute_quality_flags_simple(df, min_missing_share=min_missing_share)
+
+    # 3. Сохраняем табличные артефакты
+    summary_df.to_csv(out_root / "summary.csv", index=False)
+    if not missing_df.empty:
+        missing_df.to_csv(out_root / "missing.csv", index=True)
+    if not corr_df.empty:
+        corr_df.to_csv(out_root / "correlation.csv", index=True)
+    save_top_categories_tables(top_cats, out_root / "top_categories")
+
+    # 4. Markdown-отчёт
+    md_path = out_root / "report.md"
+    with md_path.open("w", encoding="utf-8") as f:
+        f.write(f"# EDA-отчёт\n\n")
+        f.write(f"Исходный файл: `{Path(path).name}`\n\n")
+        f.write(f"Строк: **{summary.n_rows}**, столбцов: **{summary.n_cols}**\n\n")
+
+        # ========================================================================
+        # HW03: Показываем использованные параметры
+        # ========================================================================
+        f.write("## Настройки отчёта (HW03)\n")
+        f.write(f"- Макс. гистограмм: **{max_hist_columns}**\n")
+        f.write(f"- Порог пропусков: **{min_missing_share:.0%}**\n\n")
+        # ========================================================================
+
+        f.write("## Качество данных (эвристики)\n\n")
+        f.write(f"- Оценка качества: **{quality_flags['quality_score']:.2f}/100**\n")
+        f.write(f"- Доля пропусков: **{quality_flags['missing_percentage']:.1f}%**\n")
         
-        args = sys.argv[2:]
-        input_csv = None
-        out_dir = "reports"
-        # ============================================
-        # ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ ДЛЯ НОВЫХ ОПЦИЙ HW03
-        # ============================================
-        max_hist_columns = 4    # НОВАЯ ОПЦИЯ HW03
-        min_missing_share = 0.3 # НОВАЯ ОПЦИЯ HW03
-        # ============================================
+        # HW03: Добавляем информацию о новых эвристиках
+        f.write("\n### Обнаруженные проблемы (HW03)\n")
+        if quality_flags['has_missing_values']:
+            f.write(f"- Есть пропуски ({quality_flags['missing_percentage']:.1f}%)\n")
         
-        i = 0
-        while i < len(args):
-            if args[i] == "--out-dir" and i + 1 < len(args):
-                out_dir = args[i + 1]
-                i += 2
-            # ============================================
-            # ПАРСИНГ НОВОЙ ОПЦИИ HW03: --max-hist-columns
-            # ============================================
-            elif args[i] == "--max-hist-columns" and i + 1 < len(args):
-                max_hist_columns = int(args[i + 1])
-                print(f"Применена новая опция HW03: max-hist-columns = {max_hist_columns}")
-                i += 2
-            # ============================================
-            # ПАРСИНГ НОВОЙ ОПЦИИ HW03: --min-missing-share
-            # ============================================
-            elif args[i] == "--min-missing-share" and i + 1 < len(args):
-                min_missing_share = float(args[i + 1])
-                print(f"Применена новая опция HW03: min-missing-share = {min_missing_share}")
-                i += 2
-            elif not args[i].startswith("--"):
-                input_csv = args[i]
-                i += 1
-            else:
-                print(f"Неизвестная опция: {args[i]}")
-                sys.exit(1)
+        if quality_flags['has_constant_columns']:
+            f.write(f"- Константные колонки: {quality_flags['constant_columns_list']}\n")
         
-        if not input_csv:
-            print("Ошибка: укажите путь к CSV файлу")
-            sys.exit(1)
+        if quality_flags['has_high_cardinality_categoricals']:
+            f.write(f"- Высокая кардинальность: {quality_flags['high_cardinality_columns']}\n")
         
-        generate_report(
-            path=input_csv,
-            out_dir=out_dir,
-            max_hist_columns=max_hist_columns,
-            min_missing_share=min_missing_share,
-        )
+        f.write("\n")
+
+        f.write("## Колонки\n\n")
+        f.write("См. файл `summary.csv`.\n\n")
+
+        f.write("## Пропуски\n\n")
+        if missing_df.empty:
+            f.write("Пропусков нет или датасет пуст.\n\n")
+        else:
+            f.write("См. файлы `missing.csv` и `missing_matrix.png`.\n\n")
+
+        f.write("## Корреляция числовых признаков\n\n")
+        if corr_df.empty:
+            f.write("Недостаточно числовых колонок для корреляции.\n\n")
+        else:
+            f.write("См. `correlation.csv` и `correlation_heatmap.png`.\n\n")
+
+        f.write("## Категориальные признаки\n\n")
+        if not top_cats:
+            f.write("Категориальные/строковые признаки не найдены.\n\n")
+        else:
+            f.write("См. файлы в папке `top_categories/`.\n\n")
+
+        f.write("## Гистограммы числовых колонок\n\n")
+        f.write(f"Построено гистограмм: {max_hist_columns} (ограничение HW03)\n")
+        f.write("См. файлы `hist_*.png`.\n")
+
+    # 5. Картинки - HW03: используем max_hist_columns
+    plot_histograms_per_column(df, out_root, max_columns=max_hist_columns)
+    plot_missing_matrix(df, out_root / "missing_matrix.png")
+    plot_correlation_heatmap(df, out_root / "correlation_heatmap.png")
+
+    typer.echo(f"Отчёт сгенерирован в каталоге: {out_root}")
+    typer.echo(f"- Основной markdown: {md_path}")
+    typer.echo("- Табличные файлы: summary.csv, missing.csv, correlation.csv, top_categories/*.csv")
+    typer.echo("- Графики: hist_*.png, missing_matrix.png, correlation_heatmap.png")
     
-    else:
-        print(f"Неизвестная команда: {command}")
-        sys.exit(1)
+    # HW03: Выводим информацию о новых параметрах
+    typer.echo(f"\n[HW03] Использованы новые параметры:")
+    typer.echo(f"  --max-hist-columns={max_hist_columns}")
+    typer.echo(f"  --min-missing-share={min_missing_share}")
+
 
 if __name__ == "__main__":
-    main()
+    app()
