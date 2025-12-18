@@ -1,26 +1,19 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "eda-cli"
+name = "s03"
 version = "0.1.0"
-description = "Мини EDA утилита — HW03"
-requires-python = ">=3.8"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
 dependencies = [
-    "pandas",
-    "matplotlib",
+    "matplotlib>=3.10.7",
+    "pandas>=2.3.3",
+    "pytest>=9.0.1",
+    "typer>=0.20.0",
 ]
 
 [project.scripts]
-eda-cli = "eda_cli.cli:main"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[dependency-groups]
-dev = [
-    "pytest>=8.3.5",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest",
-]
+eda-cli = "eda_cli.cli:app"
