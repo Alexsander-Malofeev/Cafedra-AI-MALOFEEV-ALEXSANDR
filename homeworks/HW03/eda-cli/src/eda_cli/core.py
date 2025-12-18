@@ -1,38 +1,45 @@
 import pandas as pd
+from eda_cli.core import compute_quality_flags
 
-def load_data(path: str):
-    return pd.read_csv(path)
-
-def compute_quality_flags(df, min_missing_share: float = 0.3):
-    flags = {
-        "has_missing_values": df.isna().any().any(),
-        "missing_percentage": (df.isna().sum().sum() / (df.shape[0] * df.shape[1])) * 100,
-        "has_duplicates": df.duplicated().any(),
-    }
-    constant_cols = [col for col in df.columns if df[col].nunique() <= 1]
-    flags["has_constant_columns"] = len(constant_cols) > 0
-    flags["constant_columns_list"] = constant_cols
-    
-    high_card_cols = []
-    for col in df.select_dtypes(include=["object"]).columns:
-        if df[col].nunique() > 20:
-            high_card_cols.append(col)
+def test_constant_columns():
+    """ТЕСТ ДЛЯ HW03: проверка новой эвристики - константные колонки"""
+    df = pd.DataFrame({
+        "a": [1, 1, 1], # Константный столбец
+        "b": [1, 2, 3],
+        "c": ["x", "y", "z"]
+    })
    
-    flags["has_high_cardinality_categoricals"] = len(high_card_cols) > 0
-    flags["high_cardinality_columns"] = high_card_cols
-    
-    # Добавлена логика для строгого соответствия ДЗ: список проблемных колонок по порогу min_missing_share
-    missing_shares = df.isna().mean()
-    high_missing_cols = [col for col in df.columns if missing_shares[col] > min_missing_share]
-    flags["has_high_missing"] = len(high_missing_cols) > 0
-    flags["high_missing_columns"] = high_missing_cols
-    
-    score = 100
-    if flags["has_missing_values"]: score -= 25
-    if flags["has_duplicates"]: score -= 25
-    if flags["has_constant_columns"]: score -= 25
-    if flags["has_high_cardinality_categoricals"]: score -= 25
-    if flags["has_high_missing"]: score -= 10  # Штраф за высокие пропуски, интегрировано в score
-    
-    flags["quality_score"] = max(0, score)
-    return flags
+    flags = compute_quality_flags(df)
+   
+    # Проверяем новую эвристику HW03
+    assert flags["has_constant_columns"] == True
+    assert "a" in flags["constant_columns_list"]
+
+def test_high_cardinality():
+    """ТЕСТ ДЛЯ HW03: проверка новой эвристики - высокая кардинальность"""
+    df = pd.DataFrame({
+        "category": [f"cat_{i}" for i in range(25)], # 25 уникальных значений > 20
+        "value": range(25)
+    })
+   
+    flags = compute_quality_flags(df)
+   
+    # Проверяем новую эвристику HW03
+    assert flags["has_high_cardinality_categoricals"] == True
+    assert "category" in flags["high_cardinality_columns"]
+
+def test_high_missing_columns():
+    """ТЕСТ ДЛЯ HW03: проверка логики с min_missing_share для проблемных колонок"""
+    df = pd.DataFrame({
+        "a": [1, 2, None, None, None],  # 2 уникальных значения, 3/5 (~60%) пропусков >50%
+        "b": [1, 2, 3, 4, 5],           # 0% пропусков
+    })
+   
+    flags = compute_quality_flags(df, min_missing_share=0.5)  # Порог 50%
+   
+    # Проверяем: 'a' > 0.5, так что флаг True
+    assert flags["has_high_missing"] == True
+    assert "a" in flags["high_missing_columns"]
+    assert "b" not in flags["high_missing_columns"]
+    # Проверяем влияние на score (штраф -10)
+    assert flags["quality_score"] == 65  # 100 -25 (missing) -10 (high_missing)
