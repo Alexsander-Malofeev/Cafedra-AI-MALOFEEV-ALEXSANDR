@@ -1,0 +1,55 @@
+{
+    "DummyClassifier": {
+        "accuracy": 0.95088,
+        "f1": 0.0,
+        "roc_auc": null,
+        "params": {
+            "strategy": "most_frequent"
+        }
+    },
+    "LogisticRegression": {
+        "accuracy": 0.7792,
+        "f1": 0.2572658772874058,
+        "roc_auc": 0.8418608704517014,
+        "params": {
+            "max_iter": 1000,
+            "class_weight": "balanced",
+            "scaler": "StandardScaler"
+        }
+    },
+    "DecisionTree": {
+        "accuracy": 0.96704,
+        "f1": 0.5846774193548387,
+        "roc_auc": 0.8049653028417085,
+        "best_params": {
+            "criterion": "entropy",
+            "max_depth": 7,
+            "min_samples_leaf": 10
+        },
+        "cv_score": 0.8110901799726145
+    },
+    "RandomForest": {
+        "accuracy": 0.96704,
+        "f1": 0.4950980392156863,
+        "roc_auc": 0.8988506994515212,
+        "best_params": {
+            "max_depth": 10,
+            "max_features": "sqrt",
+            "min_samples_leaf": 3,
+            "n_estimators": 100
+        },
+        "cv_score": 0.8803284439358933
+    },
+    "GradientBoosting": {
+        "accuracy": 0.97472,
+        "f1": 0.6889763779527559,
+        "roc_auc": 0.892111322493109,
+        "best_params": {
+            "learning_rate": 0.1,
+            "max_depth": 5,
+            "n_estimators": 100,
+            "subsample": 0.8
+        },
+        "cv_score": 0.8894029913543336
+    }
+}

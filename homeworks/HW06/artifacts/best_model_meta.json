@@ -1,0 +1,45 @@
+{
+    "model_name": "RandomForest",
+    "model_type": "RandomForestClassifier",
+    "test_metrics": {
+        "accuracy": 0.96704,
+        "f1_score": 0.4950980392156863,
+        "roc_auc": 0.8988506994515212
+    },
+    "parameters": {
+        "max_depth": 10,
+        "max_features": "sqrt",
+        "min_samples_leaf": 3,
+        "n_estimators": 100
+    },
+    "training_date": "2026-01-14 14:59:39",
+    "dataset": "S06-hw-dataset-04.csv",
+    "experiment_settings": {
+        "random_state": 42,
+        "test_size": 0.25,
+        "cv_folds": 5,
+        "scoring": "roc_auc"
+    },
+    "feature_importance_top5": [
+        {
+            "feature": "f53",
+            "importance_mean": 0.014565571627529883
+        },
+        {
+            "feature": "f54",
+            "importance_mean": 0.013786564107117438
+        },
+        {
+            "feature": "f58",
+            "importance_mean": 0.01163852472539063
+        },
+        {
+            "feature": "f33",
+            "importance_mean": 0.011510106050914671
+        },
+        {
+            "feature": "f41",
+            "importance_mean": 0.01037061640415644
+        }
+    ]
+}
