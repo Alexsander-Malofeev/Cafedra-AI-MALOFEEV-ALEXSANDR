@@ -1,0 +1,6 @@
+experiment_id,dataset,seed,model_summary,dropout,batchnorm,epochs_trained,best_epoch,best_val_accuracy,best_val_loss
+E0,CIFAR10,42,"MLP(in=3072, hidden=[256], out=10, drop=0.0, bn=False)",0.0,False,15,14,0.5248219936708861,1.6194874093502383
+E1,CIFAR10,42,"MLP(in=3072, hidden=[512, 256], out=10, drop=0.0, bn=False)",0.0,False,15,12,0.5389636075949367,1.7177442583856704
+E2,CIFAR10,42,"MLP(in=3072, hidden=[512, 256], out=10, drop=0.3, bn=False)",0.3,False,15,12,0.537381329113924,1.3412703909451449
+E3,CIFAR10,42,"MLP(in=3072, hidden=[512, 256], out=10, drop=0.0, bn=True)",0.0,True,15,10,0.5558742088607594,1.3786404019669642
+E4,CIFAR10,42,"MLP(in=3072, hidden=[512, 256], out=10, drop=0.0, bn=True)",0.0,True,14,10,0.5558742088607594,1.3786404019669642

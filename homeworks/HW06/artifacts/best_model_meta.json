@@ -1,0 +1,115 @@
+{
+    "model_name": "RandomForest",
+    "model_type": "RandomForestClassifier",
+    "test_metrics": {
+        "accuracy": 0.968,
+        "f1_score": 0.5169082125603864,
+        "roc_auc": 0.9022247726912729
+    },
+    "parameters": {
+        "bootstrap": true,
+        "max_depth": null,
+        "max_features": "sqrt",
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "n_estimators": 100
+    },
+    "training_date": "2026-01-19 15:20:05",
+    "dataset": "S06-hw-dataset-04.csv",
+    "experiment_settings": {
+        "random_state": 42,
+        "test_size": 0.25,
+        "cv_folds": 3,
+        "scoring": "roc_auc",
+        "stratify": true
+    },
+    "feature_importance": [
+        {
+            "feature": "f54",
+            "importance_mean": 0.012036989839961775,
+            "importance_std": 0.005007046421181578
+        },
+        {
+            "feature": "f53",
+            "importance_mean": 0.008439732288444902,
+            "importance_std": 0.004498680537402351
+        },
+        {
+            "feature": "f58",
+            "importance_mean": 0.007872453892872722,
+            "importance_std": 0.003975002061417458
+        },
+        {
+            "feature": "f25",
+            "importance_mean": 0.006954778320209298,
+            "importance_std": 0.0023879536047588783
+        },
+        {
+            "feature": "f04",
+            "importance_mean": 0.006397530064384815,
+            "importance_std": 0.0026154789158279387
+        },
+        {
+            "feature": "f08",
+            "importance_mean": 0.006083526399821193,
+            "importance_std": 0.00172831511811367
+        },
+        {
+            "feature": "f10",
+            "importance_mean": 0.0038498197589368786,
+            "importance_std": 0.001672259241957651
+        },
+        {
+            "feature": "f07",
+            "importance_mean": 0.0033729770496152556,
+            "importance_std": 0.0011946013599647128
+        },
+        {
+            "feature": "f40",
+            "importance_mean": 0.00311844169994977,
+            "importance_std": 0.0010637735631486291
+        },
+        {
+            "feature": "f43",
+            "importance_mean": 0.0029471619911417115,
+            "importance_std": 0.002417491308217805
+        }
+    ],
+    "model_comparison": [
+        {
+            "Model": "DummyClassifier",
+            "Accuracy": "0.9509",
+            "F1-score": "0.0000",
+            "ROC-AUC": "N/A",
+            "CV Score": "N/A"
+        },
+        {
+            "Model": "LogisticRegression",
+            "Accuracy": "0.7792",
+            "F1-score": "0.2573",
+            "ROC-AUC": "0.8419",
+            "CV Score": "N/A"
+        },
+        {
+            "Model": "DecisionTree",
+            "Accuracy": "0.8835",
+            "F1-score": "0.3767",
+            "ROC-AUC": "0.8439",
+            "CV Score": "0.8247"
+        },
+        {
+            "Model": "RandomForest",
+            "Accuracy": "0.9680",
+            "F1-score": "0.5169",
+            "ROC-AUC": "0.9022",
+            "CV Score": "0.8924"
+        },
+        {
+            "Model": "GradientBoosting",
+            "Accuracy": "0.9774",
+            "F1-score": "0.7105",
+            "ROC-AUC": "0.8997",
+            "CV Score": "0.8922"
+        }
+    ]
+}

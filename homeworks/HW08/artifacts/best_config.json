@@ -1,0 +1,34 @@
+{
+  "experiment_id": "E3",
+  "dataset": "CIFAR10",
+  "seed": 42,
+  "split": {
+    "train_ratio": 0.8,
+    "val_ratio": 0.19999999999999996
+  },
+  "train": {
+    "batch_size": 128,
+    "lr": 0.001,
+    "max_epochs": 15,
+    "early_stopping_patience": 0
+  },
+  "model": {
+    "in_dim": 3072,
+    "hidden_dims": [
+      512,
+      256
+    ],
+    "num_classes": 10,
+    "dropout_p": 0.0,
+    "batchnorm": true
+  },
+  "best_val": {
+    "accuracy": 0.5558742088607594,
+    "loss": 1.3786404019669642,
+    "epoch": 10
+  },
+  "test": {
+    "loss": 1.3986717507809023,
+    "accuracy": 0.5390625
+  }
+}
