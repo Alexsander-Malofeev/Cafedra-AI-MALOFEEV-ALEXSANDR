@@ -1,0 +1,28 @@
+{
+  "dataset": "CIFAR10",
+  "seed": 42,
+  "input_dim": 3072,
+  "num_classes": 10,
+  "model": {
+    "hidden_sizes": [
+      512,
+      256
+    ],
+    "activation": "ReLU",
+    "dropout_p": 0.0,
+    "use_batchnorm": true
+  },
+  "training": {
+    "loss": "CrossEntropyLoss",
+    "optimizer": "Adam",
+    "lr": 0.001,
+    "weight_decay": 0.0,
+    "batch_size": 128,
+    "max_epochs": 50,
+    "early_stopping": {
+      "enabled": true,
+      "patience": 4,
+      "metric": "val_accuracy"
+    }
+  }
+}
