@@ -1,0 +1,7 @@
+experiment_id,task,dataset,seed,model_summary,optimizer,lr,epochs_trained,best_val_accuracy,test_accuracy,precision,recall,mean_iou,notes
+C1,classification,STL10,42,"SimpleCNN, no augmentations",Adam,0.001,6,0.5246093757450581,,,,,simple-cnn-base
+C2,classification,STL10,42,"SimpleCNN, augmentations",Adam,0.001,6,0.48574218712747097,,,,,simple-cnn-aug
+C3,classification,STL10,42,"ResNet18 pretrained, head-only",Adam,0.001,4,0.9365234375,,,,,resnet18-head-only
+C4,classification,STL10,42,"ResNet18 pretrained, layer4+fc fine-tune",Adam,0.0001,4,0.953125,0.94625,,,,resnet18-finetune
+V1,segmentation,Pascal VOC,42,"DeepLabV3_ResNet50 pretrained, foreground=person",,,,,,0.9503421776309887,0.9598165651882101,0.7951282603427539,raw argmax mask; evaluated on first 40 val images containing person
+V2,segmentation,Pascal VOC,42,"DeepLabV3_ResNet50 pretrained, foreground=person",,,,,,0.9504774776019363,0.9597036939337286,0.7954240971586387,morphological opening; evaluated on first 40 val images containing person

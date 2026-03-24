@@ -1,0 +1,47 @@
+{
+  "experiment_id": "C4",
+  "dataset": "STL10",
+  "seed": 42,
+  "device": "cpu",
+  "architecture": "ResNet18 pretrained, layer4+fc fine-tune",
+  "model_summary": "ResNet18 pretrained, layer4+fc fine-tune",
+  "optimizer": "Adam",
+  "lr": 0.0001,
+  "batch_size": 32,
+  "epochs_trained": 4,
+  "best_val_accuracy": 0.953125,
+  "test_accuracy": 0.94625,
+  "train_transform": "resnet_preprocess",
+  "eval_transform": "resnet_preprocess",
+  "num_classes": 10,
+  "train_size": 4000,
+  "val_size": 1000,
+  "test_size": 8000,
+  "data": {
+    "dataset": "STL10",
+    "num_classes": 10,
+    "train_size": 4000,
+    "val_size": 1000,
+    "test_size": 8000
+  },
+  "model": {
+    "build_name": "resnet18_finetune",
+    "model_summary": "ResNet18 pretrained, layer4+fc fine-tune"
+  },
+  "training": {
+    "criterion": "CrossEntropyLoss",
+    "optimizer": "Adam",
+    "lr": 0.0001,
+    "batch_size": 32,
+    "epochs_trained": 4,
+    "criterion_selection": "best_val_accuracy"
+  },
+  "transforms": {
+    "train_transform": "resnet_preprocess",
+    "eval_transform": "resnet_preprocess"
+  },
+  "metrics": {
+    "best_val_accuracy": 0.953125,
+    "test_accuracy": 0.94625
+  }
+}
