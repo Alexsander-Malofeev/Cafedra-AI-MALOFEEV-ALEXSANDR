@@ -1,0 +1,4 @@
+query,before_retrieved_sources,after_retrieved_sources,changed
+Что такое автокодировщики?,"doc_04, doc_07, doc_03","doc_11, doc_04, doc_07",True
+Как работает обучение с подкреплением?,"doc_09, doc_01, doc_05","doc_12, doc_09, doc_13",True
+Для чего нужен градиентный спуск?,"doc_10, doc_03, doc_06","doc_13, doc_10, doc_03",True
