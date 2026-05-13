@@ -1,0 +1,15 @@
+{
+  "rows": 278,
+  "categories": {
+    "payment_issue": 47,
+    "delivery_issue": 47,
+    "refund_request": 47,
+    "general_question": 47,
+    "account_access": 46,
+    "technical_bug": 44
+  },
+  "min_words": 2,
+  "max_words": 11,
+  "mean_words": 5.86,
+  "empty_texts": 0
+}

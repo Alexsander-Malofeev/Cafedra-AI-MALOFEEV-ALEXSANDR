@@ -1,0 +1,12 @@
+                  precision    recall  f1-score   support
+
+  account_access       1.00      1.00      1.00        11
+  delivery_issue       0.92      1.00      0.96        12
+general_question       1.00      0.92      0.96        12
+   payment_issue       1.00      1.00      1.00        12
+  refund_request       1.00      1.00      1.00        12
+   technical_bug       1.00      1.00      1.00        11
+
+        accuracy                           0.99        70
+       macro avg       0.99      0.99      0.99        70
+    weighted avg       0.99      0.99      0.99        70

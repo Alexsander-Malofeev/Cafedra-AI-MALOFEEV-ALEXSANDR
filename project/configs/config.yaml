@@ -1,0 +1,24 @@
+project:
+  name: ticket-category-classifier
+  description: Demo service for classifying support tickets by category.
+
+paths:
+  data_path: data/tickets.csv
+  model_path: artifacts/ticket_classifier.joblib
+  metrics_path: artifacts/metrics.json
+  report_path: artifacts/classification_report.txt
+
+model:
+  random_state: 42
+  test_size: 0.25
+  min_confidence: 0.55
+  short_text_min_words: 2
+  short_text_min_chars: 8
+
+categories:
+  payment_issue: Problems with payment or money charge.
+  refund_request: Request to refund money, cancel order or return product.
+  delivery_issue: Problems with delivery, courier or missing order.
+  account_access: Problems with login, password or account access.
+  technical_bug: Technical errors in site, app or interface.
+  general_question: General questions about service rules and settings.
