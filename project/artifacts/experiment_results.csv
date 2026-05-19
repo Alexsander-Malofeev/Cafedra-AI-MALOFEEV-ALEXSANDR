@@ -1,0 +1,5 @@
+model_name,accuracy,f1_macro,f1_weighted
+Baseline: CountVectorizer + LogisticRegression,1.0,1.0,1.0
+Improved: TF-IDF word ngrams + LogisticRegression,1.0,1.0,1.0
+Final: TF-IDF word + char ngrams + LogisticRegression,1.0,1.0,1.0
+Baseline: DummyClassifier most_frequent,0.16071428571428573,0.046153846153846156,0.04450549450549451

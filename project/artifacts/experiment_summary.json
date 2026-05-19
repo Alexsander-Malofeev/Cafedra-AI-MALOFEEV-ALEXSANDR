@@ -1,0 +1,23 @@
+{
+  "best_model": "Baseline: CountVectorizer + LogisticRegression",
+  "accuracy": 1.0,
+  "f1_macro": 1.0,
+  "f1_weighted": 1.0,
+  "dataset_rows": 278,
+  "dataset_columns": [
+    "text",
+    "label",
+    "clean_text",
+    "text_length",
+    "clean_text_length",
+    "word_count"
+  ],
+  "target_classes": [
+    "account_access",
+    "delivery_issue",
+    "general_question",
+    "payment_issue",
+    "refund_request",
+    "technical_bug"
+  ]
+}
